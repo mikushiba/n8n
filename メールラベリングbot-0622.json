@@ -1,0 +1,409 @@
+{
+  "name": "メールラベリングbot-0622",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "hour": 8
+            }
+          ]
+        },
+        "simple": false,
+        "filters": {},
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        100
+      ],
+      "id": "db843abf-20e9-4fd1-9c4f-f142dae5e006",
+      "name": "Gmail Trigger",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "Q2CmExQ6kIw9gQW5",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "inputText": "={{ $json.text }}",
+        "categories": {
+          "categories": [
+            {
+              "category": "メール返信",
+              "description": "説明：\n過去に受信・送信したメールに対して、返信・フォローアップが必要なもの。主に個別のやり取りに関連しており、「返信待ち」や「確認が必要」といったタスクを含む。\n\n判断基準：\n•差出人が返信を要求している\n•自分が何らかのアクションを求められている（資料提出、質問回答など）\n•フォローアップが必要なやり取り"
+            },
+            {
+              "category": "業務委託（請求関連含む）",
+              "description": "説明：\nフリーランスや外部パートナー企業など、業務を委託している相手との連絡に関するメール全般。業務の依頼・進捗報告・納品だけでなく、請求書の発行・支払い連絡などの会計的やり取りも含む。\n\n判断基準：\n•外注・委託契約相手からの連絡（業務報告、納品、修正依頼など）\n•請求書（PDF添付やGoogleドライブリンクなど）や支払予定日の通知\n•件名・本文に「請求」「確認」「納品」「対応の件」などの文言\n•送り主が特定の委託先と分かる（個人事業主、制作会社など）\n\n④サブスク／請求との違い：\n→ 業務委託先は “特定の外注相手との業務の一環” としての請求が対象\n→ サブスク／請求は「サービス利用者」として受ける自動・定型的な課金通知（例：Notion、Google Workspace）"
+            },
+            {
+              "category": "仕事依頼／オファー",
+              "description": "説明：\n新規の業務依頼、提携の打診、登壇依頼、メディア掲載のオファー、コンサルティング案件などのオファーメール。営業的な提案も含む。\n\n判断基準：\n•「ぜひご相談したい」「お話ししたい」などの打診表現がある\n•新しい企画・案件の打診、見積依頼、条件相談など\n•人脈・紹介経由のオファーやコラボ提案"
+            },
+            {
+              "category": "サブスク／請求",
+              "description": "説明：\n定期課金サービスの通知や、利用明細、請求書・領収書の送付など、会計・支払いに関するメール。\n\n判断基準：\n•「請求書」「支払確認」「領収書」「月額費用」などの文言\n•サービス利用の更新・課金通知\n•Stripe、PayPal、会計ソフト（freee等）からの自動通知\n"
+            },
+            {
+              "category": "イベント／メルマガ",
+              "description": "説明：\nオンライン・オフラインを問わず、ウェビナー、カンファレンス、セミナーなどのイベント関連通知や、企業・サービスからの情報提供メール（メルマガ含む）。\n\n判断基準：\n•「イベント開催」「お申込み」「参加リンク」などの記載\n•定期的に届くニュースレター形式の情報提供\n•一斉送信メールや、購読登録済みサービスからの更新案内\n•MIRAICHI、SkillFreakなど"
+            },
+            {
+              "category": "求人",
+              "description": "説明：\nビズリーチ（BizReach）などの転職・キャリア系プラットフォームからのスカウトメールや求人情報。応募勧誘や企業からのオファーも含む。\n\n判断基準：\n•ビズリーチや類似転職サービス（LinkedIn、Wantedly等）からの送信\n•「スカウト」「キャリアに関心がありますか」などの表現\n•求人企業からの直接オファー・インタビュー打診"
+            },
+            {
+              "category": "MTGインビ（会議招待）",
+              "description": "説明：\nGoogleカレンダーやOutlookなどから送信される会議・打ち合わせの招待メールや更新通知。予定の承認依頼、日時変更、キャンセル通知なども含まれる。業務委託・外部オファーと関連する内容であっても、「カレンダー連携を伴うMTG情報」であればこちらに分類。\n\n判断基準：\n•件名や差出人が「Google Calendar」「予定への招待」「Meeting Invitation」などを含む\n•本文に「この予定に出席しますか？」「日程変更がありました」などの記述\n•.ics ファイルが添付されている場合も該当\n•カレンダー連携メールで、出欠確認ボタンやスケジュール詳細が含まれている\n\n他カテゴリとの違い：\n•③ 仕事依頼／オファーにMTGが含まれていても、「日程調整メール」なら③、「正式なカレンダー招待」なら⑦\n•② 業務委託先とのMTG招待でも、予定がカレンダー形式なら⑦に分類"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.textClassifier",
+      "typeVersion": 1.1,
+      "position": [
+        220,
+        100
+      ],
+      "id": "b2346ef9-e418-423b-8305-26627a7d8d3f",
+      "name": "Text Classifier"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        300,
+        300
+      ],
+      "id": "26da7aa1-c245-4b99-93e8-dc4f4cb62fb6",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "NLfjzkFBMA9IC0KV",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## STEP1.Gmail取得",
+        "height": 240,
+        "width": 220,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -60,
+        40
+      ],
+      "typeVersion": 1,
+      "id": "95f3d480-9062-4e88-9692-961e384a5944",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "## STEP2.ラベル定義",
+        "height": 420,
+        "width": 300,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        200,
+        40
+      ],
+      "typeVersion": 1,
+      "id": "aa0af374-0601-436f-b9cb-ceb270adf65b",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "content": "## STEP3.分類",
+        "height": 1020,
+        "width": 980,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        540,
+        -360
+      ],
+      "typeVersion": 1,
+      "id": "5c899515-a4e7-487b-ac67-c1cce43e8e02",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "operation": "addLabels",
+        "messageId": "={{ $json.id }}",
+        "labelIds": [
+          "Label_5189364422699919399"
+        ]
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        580,
+        -300
+      ],
+      "id": "a91df788-17d5-45f7-814a-f10777c1c819",
+      "name": "メール返信",
+      "webhookId": "e1bf6255-89d5-4e43-a3ed-cf86f6f67e7f",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "Q2CmExQ6kIw9gQW5",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "addLabels",
+        "messageId": "={{ $json.id }}",
+        "labelIds": [
+          "Label_6926874159345822670"
+        ]
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        700,
+        -180
+      ],
+      "id": "89765859-5cd9-4d89-9804-71a9098cc171",
+      "name": "業務委託",
+      "webhookId": "e1bf6255-89d5-4e43-a3ed-cf86f6f67e7f",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "Q2CmExQ6kIw9gQW5",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "addLabels",
+        "messageId": "={{ $json.id }}",
+        "labelIds": [
+          "Label_3271495674385862231"
+        ]
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        820,
+        -60
+      ],
+      "id": "af7caa67-6fd2-4427-a117-97fb1a2c2ebf",
+      "name": "仕事依頼／オファー",
+      "webhookId": "e1bf6255-89d5-4e43-a3ed-cf86f6f67e7f",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "Q2CmExQ6kIw9gQW5",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "addLabels",
+        "messageId": "={{ $json.id }}",
+        "labelIds": [
+          "Label_2129841372404495167"
+        ]
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        940,
+        60
+      ],
+      "id": "3767ef12-a503-48a8-90a6-7bc4476a74d1",
+      "name": "サブスク／請求",
+      "webhookId": "e1bf6255-89d5-4e43-a3ed-cf86f6f67e7f",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "Q2CmExQ6kIw9gQW5",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "addLabels",
+        "messageId": "={{ $json.id }}",
+        "labelIds": [
+          "Label_4192941221196777419"
+        ]
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        1060,
+        200
+      ],
+      "id": "07cb2012-8073-4ef9-b60c-0704cfaa7213",
+      "name": "イベント／メルマガ",
+      "webhookId": "e1bf6255-89d5-4e43-a3ed-cf86f6f67e7f",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "Q2CmExQ6kIw9gQW5",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "addLabels",
+        "messageId": "={{ $json.id }}",
+        "labelIds": [
+          "Label_2378916806401627321"
+        ]
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        1180,
+        340
+      ],
+      "id": "06c6f45c-5602-4483-8d3c-168983acc7f1",
+      "name": "求人",
+      "webhookId": "e1bf6255-89d5-4e43-a3ed-cf86f6f67e7f",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "Q2CmExQ6kIw9gQW5",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "addLabels",
+        "messageId": "={{ $json.id }}",
+        "labelIds": [
+          "Label_3752178647537909246"
+        ]
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        1300,
+        480
+      ],
+      "id": "df8d2585-0ae6-4759-ac0a-b483265d01c3",
+      "name": "MTGインビ",
+      "webhookId": "e1bf6255-89d5-4e43-a3ed-cf86f6f67e7f",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "Q2CmExQ6kIw9gQW5",
+          "name": "Gmail account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Gmail Trigger": {
+      "main": [
+        [
+          {
+            "node": "Text Classifier",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Text Classifier",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Text Classifier": {
+      "main": [
+        [
+          {
+            "node": "メール返信",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "業務委託",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "仕事依頼／オファー",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "サブスク／請求",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "イベント／メルマガ",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "求人",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "MTGインビ",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "cb0c8111-991f-4ceb-b3fa-a49261725f63",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "2b0ce69eefffe8c7a6606455ac4c766f8f06e9644b61cfca75946c75ef270104"
+  },
+  "id": "Hr7Jnu6ga1jEBYa4",
+  "tags": []
+}
